@@ -1,0 +1,12 @@
+{
+  "name": "betcircle",
+  "version": "1.0.0",
+  "description": "BetCircle — Bet with your crew",
+  "private": true,
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "@vercel/kv": "^2.0.0"
+  },
+  "engines": { "node": ">=18" }
+}

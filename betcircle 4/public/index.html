@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BetCircle — Bet with your crew</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --surface: #1e1e2a;
+    --surface2: #252535;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f8;
+    --text2: #9090a8;
+    --text3: #5a5a72;
+    --accent: #7c6af7;
+    --accent2: #9d8fff;
+    --accent-glow: rgba(124,106,247,0.25);
+    --gold: #f5c842;
+    --gold2: #ffd85c;
+    --green: #3dd68c;
+    --green2: #5af0a0;
+    --red: #f04060;
+    --red2: #ff6080;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; -webkit-font-smoothing:antialiased; }
+
+  /* ── SCREENS ── */
+  .screen { display:none; min-height:100vh; flex-direction:column; }
+  .screen.active { display:flex; }
+
+  /* ── LANDING ── */
+  #screen-landing {
+    background:var(--bg); position:relative; overflow:hidden;
+    align-items:center; justify-content:center; text-align:center; padding:40px 24px;
+  }
+  .landing-bg {
+    position:absolute; inset:0; pointer-events:none;
+    background: radial-gradient(ellipse 700px 500px at 50% -100px,rgba(124,106,247,0.18) 0%,transparent 70%),
+                radial-gradient(ellipse 400px 300px at 80% 80%,rgba(245,200,66,0.08) 0%,transparent 60%);
+  }
+  .landing-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image: linear-gradient(rgba(255,255,255,0.015) 1px,transparent 1px),
+                      linear-gradient(90deg,rgba(255,255,255,0.015) 1px,transparent 1px);
+    background-size:48px 48px;
+  }
+  .landing-content { position:relative; z-index:2; max-width:560px; width:100%; }
+  .logo-mark {
+    width:72px; height:72px; border-radius:20px;
+    background:linear-gradient(135deg,var(--accent) 0%,#a855f7 100%);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 28px; font-size:32px;
+    box-shadow:0 0 40px var(--accent-glow),0 0 80px rgba(124,106,247,0.1);
+    animation:pulse-logo 3s ease-in-out infinite;
+  }
+  @keyframes pulse-logo {
+    0%,100% { box-shadow:0 0 40px var(--accent-glow),0 0 80px rgba(124,106,247,0.1); }
+    50% { box-shadow:0 0 60px rgba(124,106,247,0.45),0 0 100px rgba(124,106,247,0.2); }
+  }
+  .beta-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    background:rgba(124,106,247,0.15); border:1px solid rgba(124,106,247,0.3);
+    color:var(--accent2); font-size:11px; font-weight:600;
+    letter-spacing:0.08em; text-transform:uppercase;
+    padding:5px 12px; border-radius:99px; margin-bottom:20px;
+  }
+  .beta-dot { width:6px; height:6px; border-radius:50%; background:var(--accent2); animation:blink 1.5s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .landing-h1 {
+    font-family:'Space Grotesk',sans-serif; font-size:clamp(36px,8vw,56px);
+    font-weight:700; line-height:1.1; margin-bottom:16px;
+    background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .landing-h1 span { background:linear-gradient(135deg,var(--accent2) 0%,var(--gold) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+  .landing-sub { font-size:17px; color:var(--text2); line-height:1.6; margin-bottom:40px; }
+  .landing-btns { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .landing-cta {
+    display:inline-flex; align-items:center; gap:10px;
+    background:var(--accent); color:#fff; font-size:16px; font-weight:600;
+    padding:16px 36px; border-radius:99px; border:none; cursor:pointer;
+    transition:all 0.2s; box-shadow:0 0 30px var(--accent-glow); font-family:inherit;
+  }
+  .landing-cta:hover { transform:translateY(-2px); box-shadow:0 0 50px rgba(124,106,247,0.5); background:var(--accent2); }
+  .landing-cta-ghost {
+    display:inline-flex; align-items:center; gap:10px;
+    background:transparent; color:var(--text2); font-size:16px; font-weight:600;
+    padding:16px 36px; border-radius:99px; border:1px solid var(--border2);
+    cursor:pointer; transition:all 0.2s; font-family:inherit;
+  }
+  .landing-cta-ghost:hover { background:var(--surface); color:var(--text); }
+  .landing-features { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:48px; }
+  .feat-pill { display:flex; align-items:center; gap:7px; background:var(--surface); border:1px solid var(--border); padding:8px 16px; border-radius:99px; font-size:13px; color:var(--text2); }
+
+  /* ── AUTH SCREENS ── */
+  #screen-login, #screen-register {
+    align-items:center; justify-content:center; padding:40px 24px;
+    background:var(--bg); position:relative;
+  }
+  .auth-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-xl); padding:36px 32px;
+    width:100%; max-width:420px; position:relative; z-index:2;
+  }
+  .auth-logo { display:flex; align-items:center; gap:10px; margin-bottom:28px; }
+  .auth-logo-mark { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,var(--accent),#a855f7); display:flex; align-items:center; justify-content:center; font-size:18px; }
+  .auth-logo-text { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; }
+  .auth-title { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin-bottom:6px; }
+  .auth-sub { font-size:14px; color:var(--text2); margin-bottom:28px; }
+  .auth-switch { margin-top:20px; text-align:center; font-size:14px; color:var(--text2); }
+  .auth-switch a { color:var(--accent2); cursor:pointer; font-weight:500; }
+  .auth-switch a:hover { text-decoration:underline; }
+  .auth-error { background:rgba(240,64,96,0.1); border:1px solid rgba(240,64,96,0.25); color:var(--red2); padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px; display:none; }
+  .auth-bg { position:absolute; inset:0; pointer-events:none; background: radial-gradient(ellipse 600px 400px at 50% 0%,rgba(124,106,247,0.12) 0%,transparent 70%); }
+
+  /* ── INVITE SCREEN ── */
+  #screen-invite { align-items:center; justify-content:center; padding:40px 24px; background:var(--bg); }
+  .invite-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-xl); padding:36px 32px;
+    width:100%; max-width:420px; text-align:center;
+  }
+  .invite-emoji { font-size:56px; margin-bottom:16px; }
+  .invite-title { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin-bottom:8px; }
+  .invite-sub { font-size:14px; color:var(--text2); margin-bottom:28px; }
+
+  /* ── APP ── */
+  .app-nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; border-bottom:1px solid var(--border);
+    background:rgba(10,10,15,0.85); backdrop-filter:blur(12px);
+    position:sticky; top:0; z-index:100; flex-shrink:0;
+  }
+  .nav-logo { display:flex; align-items:center; gap:8px; font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:700; cursor:pointer; }
+  .nav-logo-mark { width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,var(--accent),#a855f7); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .nav-right { display:flex; align-items:center; gap:10px; }
+  .nav-level { background:linear-gradient(135deg,var(--accent),#a855f7); color:#fff; font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; }
+  .nav-coins { display:flex; align-items:center; gap:5px; color:var(--gold); font-weight:600; font-size:14px; }
+  .nav-notif-btn { position:relative; background:none; border:none; cursor:pointer; padding:4px; color:var(--text2); font-size:20px; transition:color 0.2s; }
+  .nav-notif-btn:hover { color:var(--text); }
+  .notif-dot { position:absolute; top:2px; right:2px; width:8px; height:8px; border-radius:50%; background:var(--red2); border:2px solid var(--bg2); display:none; }
+  .notif-dot.show { display:block; }
+
+  .bottom-nav { display:flex; background:var(--bg2); border-top:1px solid var(--border); padding:8px 0 max(12px,env(safe-area-inset-bottom)); flex-shrink:0; position:sticky; bottom:0; }
+  .bnav-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px; cursor:pointer; color:var(--text3); transition:color 0.2s; border:none; background:none; font-family:inherit; }
+  .bnav-item.active { color:var(--accent2); }
+  .bnav-icon { font-size:22px; line-height:1; }
+  .bnav-label { font-size:10px; font-weight:500; }
+
+  .app-page { display:none; flex:1; overflow-y:auto; padding:20px; }
+  .app-page.active { display:block; }
+
+  /* ── TOAST ── */
+  #toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:12px 20px; border-radius:99px; font-size:14px; font-weight:500; z-index:9999; transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; pointer-events:none; }
+  #toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ── HOME ── */
+  .hero-strip { background:linear-gradient(135deg,rgba(124,106,247,0.15) 0%,rgba(245,200,66,0.08) 100%); border:1px solid rgba(124,106,247,0.2); border-radius:var(--radius-lg); padding:20px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; }
+  .streak-num { font-family:'Space Grotesk',sans-serif; font-size:44px; font-weight:700; color:var(--gold); line-height:1; }
+  .streak-label { font-size:12px; color:var(--text2); margin-top:2px; text-transform:uppercase; letter-spacing:0.06em; }
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; position:relative; overflow:hidden; }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .stat-card.green::before { background:linear-gradient(90deg,var(--green),transparent); }
+  .stat-card.gold::before { background:linear-gradient(90deg,var(--gold),transparent); }
+  .stat-card.accent::before { background:linear-gradient(90deg,var(--accent),transparent); }
+  .stat-card.red::before { background:linear-gradient(90deg,var(--red),transparent); }
+  .stat-val { font-family:'Space Grotesk',sans-serif; font-size:24px; font-weight:700; }
+  .stat-val.green { color:var(--green2); }
+  .stat-val.gold { color:var(--gold2); }
+  .stat-val.accent { color:var(--accent2); }
+  .stat-val.red { color:var(--red2); }
+  .stat-lbl { font-size:11px; color:var(--text3); margin-top:3px; text-transform:uppercase; letter-spacing:0.06em; }
+
+  .xp-bar-wrap { background:var(--bg3); border-radius:99px; height:6px; overflow:hidden; }
+  .xp-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width 0.6s ease; }
+
+  .section-hd { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; margin-top:24px; }
+  .section-hd:first-child { margin-top:0; }
+  .section-title { font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; }
+  .section-action { font-size:13px; color:var(--accent2); cursor:pointer; font-weight:500; border:none; background:none; font-family:inherit; }
+
+  /* ── CIRCLES ── */
+  .circle-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:10px; cursor:pointer; transition:border-color 0.2s,background 0.2s; position:relative; overflow:hidden; }
+  .circle-card:hover { border-color:var(--border2); background:var(--surface2); }
+  .circle-card-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .circle-emoji { font-size:28px; width:50px; height:50px; background:var(--bg3); border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .circle-name { font-size:16px; font-weight:600; margin-bottom:3px; }
+  .circle-meta { font-size:12px; color:var(--text3); }
+  .av-sm { width:26px; height:26px; border-radius:50%; border:2px solid var(--surface); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700; margin-left:-6px; flex-shrink:0; }
+  .av-sm:first-child { margin-left:0; }
+  .circle-footer { display:flex; align-items:center; justify-content:space-between; }
+  .open-badge { background:rgba(124,106,247,0.15); color:var(--accent2); font-size:11px; font-weight:600; padding:4px 10px; border-radius:99px; }
+  .pool-total { font-size:13px; font-weight:600; color:var(--gold); }
+
+  /* ── BET CARDS ── */
+  .bet-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:10px; transition:border-color 0.2s; }
+  .bet-card:hover { border-color:var(--border2); }
+  .bet-card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+  .bet-title { font-size:15px; font-weight:600; line-height:1.35; }
+  .bet-pool-amt { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; color:var(--gold); line-height:1; }
+  .bet-pool-lbl { font-size:10px; color:var(--text3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+  .bet-participants { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .participant-chip { display:flex; align-items:center; gap:6px; background:var(--bg3); border-radius:99px; padding:5px 10px 5px 6px; }
+  .av-xs { width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; flex-shrink:0; }
+  .participant-chip-name { font-size:12px; font-weight:500; }
+  .participant-chip-stake { font-size:12px; color:var(--text2); }
+  .participant-chip-odds { font-size:11px; color:var(--accent2); font-weight:600; }
+  .bet-actions { display:flex; gap:8px; border-top:1px solid var(--border); padding-top:14px; flex-wrap:wrap; }
+  .bet-due { font-size:11px; color:var(--text3); margin-bottom:10px; display:flex; align-items:center; gap:4px; }
+  .type-chip { display:inline-flex; padding:3px 9px; border-radius:99px; font-size:11px; font-weight:600; letter-spacing:0.02em; }
+  .type-pool { background:rgba(124,106,247,0.15); color:var(--accent2); }
+  .type-h2h { background:rgba(245,200,66,0.12); color:var(--gold2); }
+  .type-fixed { background:rgba(61,214,140,0.12); color:var(--green2); }
+
+  /* ── BUTTONS ── */
+  .btn { display:inline-flex; align-items:center; gap:7px; border:1px solid var(--border2); background:transparent; color:var(--text); padding:9px 16px; border-radius:99px; font-size:13px; font-weight:500; cursor:pointer; font-family:inherit; transition:all 0.15s; white-space:nowrap; }
+  .btn:hover { background:var(--surface2); }
+  .btn:active { transform:scale(0.97); }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 0 20px rgba(124,106,247,0.3); }
+  .btn-primary:hover { background:var(--accent2); border-color:var(--accent2); }
+  .btn-gold { background:rgba(245,200,66,0.15); border-color:rgba(245,200,66,0.3); color:var(--gold2); }
+  .btn-gold:hover { background:rgba(245,200,66,0.25); }
+  .btn-danger { background:rgba(240,64,96,0.12); border-color:rgba(240,64,96,0.25); color:var(--red2); }
+  .btn-danger:hover { background:rgba(240,64,96,0.2); }
+  .btn-sm { padding:7px 12px; font-size:12px; }
+  .btn-full { width:100%; justify-content:center; border-radius:var(--radius-sm); }
+  .btn-icon { width:36px; height:36px; padding:0; justify-content:center; border-radius:50%; font-size:16px; }
+
+  /* ── FAB ── */
+  .fab { position:fixed; bottom:80px; right:20px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--accent),#a855f7); color:#fff; font-size:24px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 24px rgba(124,106,247,0.5); transition:transform 0.2s,box-shadow 0.2s; z-index:50; }
+  .fab:hover { transform:scale(1.08); box-shadow:0 6px 32px rgba(124,106,247,0.65); }
+  .fab:active { transform:scale(0.95); }
+
+  /* ── MODAL ── */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); z-index:200; display:flex; align-items:flex-end; justify-content:center; opacity:0; pointer-events:none; transition:opacity 0.25s; }
+  .modal-backdrop.open { opacity:1; pointer-events:all; }
+  .modal { background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-xl) var(--radius-xl) 0 0; width:100%; max-width:600px; max-height:90vh; overflow-y:auto; padding:8px 0 32px; transform:translateY(60px); transition:transform 0.3s cubic-bezier(0.34,1.2,0.64,1); }
+  .modal-backdrop.open .modal { transform:translateY(0); }
+  .modal-handle { width:40px; height:4px; background:var(--border2); border-radius:99px; margin:12px auto 20px; }
+  .modal-title { font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; padding:0 24px; margin-bottom:24px; }
+  .modal-body { padding:0 24px; }
+  .modal-footer { padding:20px 24px 0; display:flex; gap:10px; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom:18px; }
+  .form-label { display:block; font-size:12px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+  .form-input, .form-select { width:100%; background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:12px 14px; border-radius:var(--radius-sm); font-size:14px; font-family:inherit; outline:none; transition:border-color 0.2s; }
+  .form-input:focus, .form-select:focus { border-color:var(--accent); }
+  .form-select { -webkit-appearance:none; cursor:pointer; }
+  .form-input::placeholder { color:var(--text3); }
+  .form-input[type="password"] { letter-spacing:0.1em; }
+
+  /* ── MEMBER STAKES ── */
+  .member-stake-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .member-stake-av { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex-shrink:0; }
+  .member-stake-name { flex:1; font-size:14px; font-weight:500; }
+  .stake-input-wrap { display:flex; align-items:center; background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; transition:border-color 0.2s; }
+  .stake-input-wrap:focus-within { border-color:var(--accent); }
+  .stake-dollar { padding:0 8px; color:var(--text3); font-size:14px; }
+  .stake-input { background:none; border:none; color:var(--text); padding:10px 8px 10px 0; width:80px; font-size:14px; font-family:inherit; outline:none; }
+
+  /* ── SETTLE ── */
+  .winner-option { display:flex; align-items:center; gap:12px; padding:14px; background:var(--bg3); border:1.5px solid var(--border); border-radius:var(--radius); margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+  .winner-option:hover { border-color:var(--border2); }
+  .winner-option.selected { border-color:var(--accent); background:rgba(124,106,247,0.08); }
+  .winner-profit { font-size:13px; font-weight:700; color:var(--green2); }
+
+  /* ── LEADERBOARD ── */
+  .lb-row { display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; }
+  .lb-rank { width:28px; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; text-align:center; flex-shrink:0; }
+  .lb-rank.gold { color:var(--gold); }
+  .lb-rank.silver { color:#c0c0d0; }
+  .lb-rank.bronze { color:#cd7f32; }
+  .lb-av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; flex-shrink:0; }
+  .lb-info { flex:1; }
+  .lb-name { font-size:14px; font-weight:600; margin-bottom:3px; }
+  .lb-stats { font-size:12px; color:var(--text3); }
+  .lb-net { font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:700; }
+
+  /* ── FRIENDS ── */
+  .friend-row { display:flex; align-items:center; gap:12px; padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:8px; }
+  .friend-info { flex:1; }
+  .friend-name { font-size:14px; font-weight:600; margin-bottom:2px; }
+  .friend-username { font-size:12px; color:var(--text3); }
+  .friend-req-row { display:flex; align-items:center; gap:12px; padding:14px; background:rgba(124,106,247,0.06); border:1px solid rgba(124,106,247,0.2); border-radius:var(--radius); margin-bottom:8px; }
+
+  /* ── PROFILE ── */
+  .profile-hero { text-align:center; padding:32px 0 24px; border-bottom:1px solid var(--border); margin-bottom:20px; }
+  .profile-av { width:80px; height:80px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:700; margin:0 auto 14px; border:3px solid var(--accent); box-shadow:0 0 24px var(--accent-glow); }
+  .profile-name { font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin-bottom:4px; }
+  .profile-username { font-size:14px; color:var(--text3); margin-bottom:12px; }
+  .profile-level { display:inline-flex; align-items:center; gap:6px; background:rgba(124,106,247,0.15); border:1px solid rgba(124,106,247,0.3); color:var(--accent2); font-size:13px; font-weight:600; padding:5px 14px; border-radius:99px; margin-bottom:20px; }
+
+  /* ── HISTORY ── */
+  .hist-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin-bottom:8px; display:flex; align-items:center; gap:12px; }
+  .hist-icon { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .hist-icon.win { background:rgba(61,214,140,0.12); }
+  .hist-icon.loss { background:rgba(240,64,96,0.12); }
+  .hist-delta { font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; }
+  .hist-delta.win { color:var(--green2); }
+  .hist-delta.loss { color:var(--red2); }
+
+  /* ── INVITE CODE DISPLAY ── */
+  .invite-code-box { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
+  .invite-code-label { font-size:11px; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+  .invite-code-val { font-family:'Space Grotesk',sans-serif; font-size:28px; font-weight:700; letter-spacing:0.12em; color:var(--accent2); text-align:center; cursor:pointer; }
+  .invite-link-val { font-size:12px; color:var(--text3); text-align:center; margin-top:6px; word-break:break-all; cursor:pointer; }
+  .invite-link-val:hover { color:var(--accent2); }
+
+  /* ── DETAIL TABS ── */
+  .tab-bar { display:flex; gap:4px; background:var(--bg3); padding:4px; border-radius:12px; margin-bottom:20px; }
+  .tab { flex:1; padding:9px 4px; text-align:center; border-radius:9px; font-size:12px; font-weight:500; cursor:pointer; color:var(--text3); border:none; background:none; font-family:inherit; transition:all 0.2s; white-space:nowrap; }
+  .tab.active { background:var(--accent); color:#fff; }
+  .back-btn { display:flex; align-items:center; gap:8px; color:var(--text2); font-size:14px; font-weight:500; cursor:pointer; border:none; background:none; font-family:inherit; padding:4px 0; margin-bottom:20px; }
+  .back-btn:hover { color:var(--text); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align:center; padding:48px 20px; }
+  .empty-icon { font-size:48px; margin-bottom:16px; opacity:0.5; }
+  .empty-title { font-size:16px; font-weight:600; margin-bottom:8px; color:var(--text2); }
+  .empty-sub { font-size:14px; color:var(--text3); }
+
+  /* ── ODDS CALC ── */
+  .odds-mode-tabs { display:flex; gap:6px; margin-bottom:16px; background:var(--bg3); padding:4px; border-radius:10px; }
+  .odds-tab { flex:1; padding:8px; text-align:center; border-radius:7px; font-size:13px; font-weight:500; cursor:pointer; color:var(--text2); border:none; background:none; font-family:inherit; transition:all 0.2s; }
+  .odds-tab.active { background:var(--accent); color:#fff; }
+  .odds-result-row { display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .odds-result-row:last-child { border-bottom:none; }
+  .odds-bar { flex:1; height:6px; background:var(--bg3); border-radius:99px; overflow:hidden; }
+  .odds-bar-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--gold)); }
+  .odds-value { font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:700; min-width:80px; text-align:right; color:var(--accent2); }
+
+  /* ── BALANCES ── */
+  .bal-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; margin-bottom:10px; }
+  .bal-amount { font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin-bottom:8px; }
+  .bal-amount.pos { color:var(--green2); }
+  .bal-amount.neg { color:var(--red2); }
+  .bal-amount.zero { color:var(--text2); }
+  .settle-row { display:flex; align-items:center; gap:10px; padding:12px; background:var(--bg3); border-radius:var(--radius-sm); margin-bottom:8px; }
+
+  /* ── ACHIEVEMENTS ── */
+  .achievement { display:flex; align-items:center; gap:14px; padding:14px; border-radius:var(--radius); margin-bottom:8px; border:1px solid var(--border); }
+  .achievement.unlocked { background:var(--surface); }
+  .achievement.locked { background:var(--bg3); opacity:0.5; filter:grayscale(0.7); }
+  .ach-icon { font-size:30px; width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; background:var(--bg); flex-shrink:0; }
+  .ach-name { font-size:14px; font-weight:600; margin-bottom:3px; }
+  .ach-desc { font-size:12px; color:var(--text2); }
+  .ach-xp { font-size:11px; font-weight:700; color:var(--accent2); margin-top:4px; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece { position:fixed; border-radius:2px; pointer-events:none; z-index:9999; animation:confetti-fall 1.8s ease-in forwards; }
+  @keyframes confetti-fall { 0%{transform:translateY(-20px) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+
+  /* ── LOADING SPINNER ── */
+  .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin:32px auto; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── NOTIFICATION PANEL ── */
+  .notif-panel { position:fixed; top:60px; right:16px; width:320px; max-height:400px; overflow-y:auto; background:var(--bg2); border:1px solid var(--border); border-radius:var(--radius-lg); z-index:300; box-shadow:0 12px 40px rgba(0,0,0,0.4); display:none; }
+  .notif-panel.open { display:block; }
+  .notif-header { padding:14px 16px; border-bottom:1px solid var(--border); font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; }
+  .notif-item { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; }
+  .notif-item:last-child { border-bottom:none; }
+  .notif-text { font-size:13px; color:var(--text); flex:1; }
+  .notif-sub { font-size:11px; color:var(--text3); margin-top:3px; }
+
+  /* ── EMOJI PICKER ── */
+  #emoji-picker { display:flex; gap:8px; flex-wrap:wrap; }
+  #emoji-picker span { font-size:24px; cursor:pointer; padding:6px; border-radius:8px; transition:background 0.15s; }
+  #emoji-picker span:hover { background:rgba(124,106,247,0.15); }
+  #emoji-picker span.selected { background:rgba(124,106,247,0.25); outline:2px solid var(--accent); }
+
+  /* ── COLOR PICKER ── */
+  .color-grid { display:flex; gap:10px; flex-wrap:wrap; }
+  .color-swatch { width:36px; height:36px; border-radius:50%; cursor:pointer; border:3px solid transparent; transition:all 0.15s; }
+  .color-swatch.selected { border-color:#fff; transform:scale(1.1); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:99px; }
+
+  /* ── LOADING SCREEN ── */
+  #screen-loading { align-items:center; justify-content:center; }
+  .loading-logo { width:72px; height:72px; border-radius:20px; background:linear-gradient(135deg,var(--accent) 0%,#a855f7 100%); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; font-size:32px; animation:pulse-logo 1.5s ease-in-out infinite; }
+  .loading-text { font-family:'Space Grotesk',sans-serif; font-size:16px; color:var(--text2); }
+</style>
+</head>
+<body>
+
+<!-- ══ TOAST ══ -->
+<div id="toast"></div>
+
+<!-- ══ NOTIFICATION PANEL ══ -->
+<div id="notif-panel" class="notif-panel">
+  <div class="notif-header">Notifications</div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- ══ SCREEN: LOADING ══ -->
+<div id="screen-loading" class="screen active">
+  <div style="text-align:center">
+    <div class="loading-logo">🎯</div>
+    <div class="loading-text">Loading BetCircle…</div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: LANDING ══ -->
+<div id="screen-landing" class="screen">
+  <div class="landing-bg"></div>
+  <div class="landing-grid"></div>
+  <div class="landing-content" style="margin:auto">
+    <div class="logo-mark">🎯</div>
+    <div class="beta-pill"><div class="beta-dot"></div> Beta — Free to try</div>
+    <h1 class="landing-h1">Bet with your crew.<br><span>Actually keep track.</span></h1>
+    <p class="landing-sub">BetCircle is your private bookmaker. Set odds, pool money, settle up — no more "I thought you said $20."</p>
+    <div class="landing-btns">
+      <button class="landing-cta" onclick="showScreen('register')">🚀 Get started free</button>
+      <button class="landing-cta-ghost" onclick="showScreen('login')">Sign in</button>
+    </div>
+    <div class="landing-features">
+      <div class="feat-pill"><span>💰</span> Pool bets</div>
+      <div class="feat-pill"><span>📊</span> Live odds</div>
+      <div class="feat-pill"><span>🏆</span> Leaderboard</div>
+      <div class="feat-pill"><span>⚡</span> Instant settle</div>
+      <div class="feat-pill"><span>🔗</span> Invite links</div>
+      <div class="feat-pill"><span>👥</span> Friends</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: LOGIN ══ -->
+<div id="screen-login" class="screen">
+  <div class="auth-bg"></div>
+  <div style="margin:auto;width:100%;padding:40px 24px">
+    <div class="auth-box" style="margin:auto">
+      <div class="auth-logo">
+        <div class="auth-logo-mark">🎯</div>
+        <div class="auth-logo-text">BetCircle</div>
+      </div>
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to your account</div>
+      <div class="auth-error" id="login-error"></div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="login-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-password" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn-primary btn-full" id="login-btn" onclick="doLogin()" style="border-radius:var(--radius-sm);padding:13px">Sign in</button>
+      <div class="auth-switch">Don't have an account? <a onclick="showScreen('register')">Create one</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: REGISTER ══ -->
+<div id="screen-register" class="screen">
+  <div class="auth-bg"></div>
+  <div style="margin:auto;width:100%;padding:40px 24px;overflow-y:auto">
+    <div class="auth-box" style="margin:auto">
+      <div class="auth-logo">
+        <div class="auth-logo-mark">🎯</div>
+        <div class="auth-logo-text">BetCircle</div>
+      </div>
+      <div class="auth-title">Create account</div>
+      <div class="auth-sub">Start tracking bets with your crew</div>
+      <div class="auth-error" id="reg-error"></div>
+      <div class="form-group">
+        <label class="form-label">Display name</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="Alex Chen" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input class="form-input" id="reg-username" type="text" placeholder="alexchen99" autocomplete="username">
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Letters, numbers, underscores. 3–20 chars.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="reg-password" type="password" placeholder="Min 6 characters" autocomplete="new-password">
+      </div>
+      <button class="btn btn-primary btn-full" id="reg-btn" onclick="doRegister()" style="border-radius:var(--radius-sm);padding:13px">Create account</button>
+      <div class="auth-switch">Already have an account? <a onclick="showScreen('login')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: INVITE LANDING ══ -->
+<div id="screen-invite" class="screen">
+  <div class="invite-box" style="margin:auto">
+    <div class="invite-emoji" id="invite-circle-emoji">🎯</div>
+    <div class="invite-title" id="invite-circle-name">You're invited!</div>
+    <div class="invite-sub" id="invite-circle-sub">Join this betting circle</div>
+    <button class="btn btn-primary btn-full" onclick="handleInviteAction()" id="invite-action-btn" style="margin-bottom:10px">Join circle</button>
+    <button class="btn btn-full" onclick="showScreen('landing')">Not now</button>
+  </div>
+</div>
+
+<!-- ══ SCREEN: APP ══ -->
+<div id="screen-app" class="screen">
+
+  <nav class="app-nav">
+    <div class="nav-logo" onclick="switchPage('home')">
+      <div class="nav-logo-mark">🎯</div>
+      BetCircle
+    </div>
+    <div class="nav-right">
+      <button class="nav-notif-btn" onclick="toggleNotifPanel()" title="Notifications">
+        🔔<div class="notif-dot" id="notif-dot"></div>
+      </button>
+      <div class="nav-coins">🪙 <span id="coin-count">0</span></div>
+      <div class="nav-level" id="nav-level">Lv 1</div>
+    </div>
+  </nav>
+
+  <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+
+    <!-- HOME PAGE -->
+    <div id="page-home" class="app-page active">
+      <div class="hero-strip">
+        <div>
+          <div class="streak-num" id="streak-num">0</div>
+          <div class="streak-label">Win streak 🔥</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:28px" id="streak-flames">😴</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:4px" id="streak-sub">Place your first bet</div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card green"><div class="stat-val green" id="stat-won">$0</div><div class="stat-lbl">Total won</div></div>
+        <div class="stat-card gold"><div class="stat-val gold" id="stat-pool">$0</div><div class="stat-lbl">In play</div></div>
+        <div class="stat-card accent"><div class="stat-val accent" id="stat-bets">0</div><div class="stat-lbl">Bets placed</div></div>
+        <div class="stat-card red"><div class="stat-val red" id="stat-wr">—</div><div class="stat-lbl">Win rate</div></div>
+      </div>
+      <div class="section-hd">
+        <div class="section-title">XP Progress</div>
+        <div id="xp-label" style="font-size:12px;color:var(--text3)">0 / 100 XP</div>
+      </div>
+      <div class="xp-bar-wrap" style="margin-bottom:24px"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+      <div class="section-hd">
+        <div class="section-title">Your circles</div>
+        <button class="section-action" onclick="showCreateCircle()">+ New</button>
+      </div>
+      <div id="home-circles"></div>
+      <div class="section-hd" style="margin-top:8px">
+        <div class="section-title">Recent bets</div>
+      </div>
+      <div id="home-recent"></div>
+    </div>
+
+    <!-- CIRCLES PAGE -->
+    <div id="page-circles" class="app-page">
+      <div id="circle-list-view">
+        <div style="display:flex;gap:10px;margin-bottom:20px">
+          <button class="btn btn-primary" style="flex:1;justify-content:center;border-radius:var(--radius-sm)" onclick="showCreateCircle()">+ New circle</button>
+          <button class="btn btn-gold" style="flex:1;justify-content:center;border-radius:var(--radius-sm)" onclick="openJoinCircle()">🔗 Join via code</button>
+        </div>
+        <div id="circles-list"></div>
+      </div>
+      <div id="circle-detail-view" style="display:none"></div>
+    </div>
+
+    <!-- FRIENDS PAGE -->
+    <div id="page-friends" class="app-page">
+      <div class="section-hd" style="margin-top:0">
+        <div class="section-title">Find friends</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <input class="form-input" id="friend-search" placeholder="Search by username or email…" oninput="searchFriends()" style="flex:1">
+      </div>
+      <div id="friend-search-results"></div>
+      <div class="section-hd">
+        <div class="section-title">Pending requests</div>
+        <button class="section-action" onclick="loadFriendRequests()">Refresh</button>
+      </div>
+      <div id="friend-requests-list"></div>
+      <div class="section-hd">
+        <div class="section-title">Your friends</div>
+      </div>
+      <div id="friends-list"></div>
+    </div>
+
+    <!-- LEADERBOARD PAGE -->
+    <div id="page-lb" class="app-page">
+      <div class="section-hd" style="margin-top:0">
+        <div class="section-title">🏆 All-time leaderboard</div>
+      </div>
+      <div id="lb-list"></div>
+      <div class="section-hd"><div class="section-title">🎖️ Achievements</div></div>
+      <div id="achievements-list"></div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="page-profile" class="app-page">
+      <div class="profile-hero">
+        <div class="profile-av" id="profile-av" style="background:#7c6af7;color:#fff">ME</div>
+        <div class="profile-name" id="profile-name-disp">Player</div>
+        <div class="profile-username" id="profile-username-disp">@username</div>
+        <div class="profile-level" id="profile-level-disp">⚡ Level 1 — Rookie</div>
+        <div class="xp-bar-wrap" style="max-width:200px;margin:12px auto 0"><div class="xp-bar-fill" id="profile-xp-bar" style="width:0%"></div></div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px" id="profile-xp-label">0 / 100 XP</div>
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">
+          <button class="btn btn-sm" onclick="openEditProfile()">✏️ Edit profile</button>
+          <button class="btn btn-sm btn-danger" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card green"><div class="stat-val green" id="p-won">$0</div><div class="stat-lbl">Won</div></div>
+        <div class="stat-card red"><div class="stat-val red" id="p-lost">$0</div><div class="stat-lbl">Lost</div></div>
+        <div class="stat-card accent"><div class="stat-val accent" id="p-bets">0</div><div class="stat-lbl">Bets</div></div>
+        <div class="stat-card gold"><div class="stat-val gold" id="p-coins">🪙 0</div><div class="stat-lbl">BetCoins</div></div>
+      </div>
+      <div class="section-hd" style="margin-top:8px"><div class="section-title">History</div></div>
+      <div id="history-list"></div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="bnav-item active" onclick="switchPage('home',this)"><div class="bnav-icon">🏠</div><div class="bnav-label">Home</div></button>
+    <button class="bnav-item" onclick="switchPage('circles',this)"><div class="bnav-icon">⭕</div><div class="bnav-label">Circles</div></button>
+    <button class="bnav-item" onclick="switchPage('friends',this)"><div class="bnav-icon">👥</div><div class="bnav-label">Friends</div></button>
+    <button class="bnav-item" onclick="switchPage('lb',this)"><div class="bnav-icon">🏆</div><div class="bnav-label">Rankings</div></button>
+    <button class="bnav-item" onclick="switchPage('profile',this)"><div class="bnav-icon">👤</div><div class="bnav-label">Profile</div></button>
+  </nav>
+
+  <button class="fab" id="fab" onclick="fabAction()" title="New bet">+</button>
+</div>
+
+<!-- ══ MODALS ══ -->
+
+<!-- Create Circle -->
+<div id="modal-circle" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Create a circle</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Circle name</label>
+        <input class="form-input" id="new-circle-name" placeholder="e.g. Playoff crew, Golf buddies…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji</label>
+        <div id="emoji-picker">
+          <span onclick="selectEmoji(this,'⚽')">⚽</span><span onclick="selectEmoji(this,'🏈')">🏈</span>
+          <span onclick="selectEmoji(this,'🏀')">🏀</span><span onclick="selectEmoji(this,'🎯')">🎯</span>
+          <span onclick="selectEmoji(this,'🎲')">🎲</span><span onclick="selectEmoji(this,'🃏')">🃏</span>
+          <span onclick="selectEmoji(this,'🏆')">🏆</span><span onclick="selectEmoji(this,'⛳')">⛳</span>
+          <span onclick="selectEmoji(this,'🎱')">🎱</span><span onclick="selectEmoji(this,'🦁')">🦁</span>
+          <span onclick="selectEmoji(this,'⚡')">⚡</span><span onclick="selectEmoji(this,'🚀')">🚀</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-circle')">Cancel</button>
+      <button class="btn btn-primary" onclick="createCircle()">Create circle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Circle -->
+<div id="modal-join" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Join a circle</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Invite code or link</label>
+        <input class="form-input" id="join-code-input" placeholder="e.g. AB12CD or paste full link" style="text-transform:uppercase;letter-spacing:0.1em">
+      </div>
+      <div id="join-preview" style="display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-size:28px" id="join-prev-emoji">🎯</div>
+          <div>
+            <div style="font-size:14px;font-weight:600" id="join-prev-name"></div>
+            <div style="font-size:12px;color:var(--text3)" id="join-prev-members"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-join')">Cancel</button>
+      <button class="btn btn-primary" onclick="joinCircle()">Join circle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Create Bet -->
+<div id="modal-bet" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New bet</div>
+    <div class="modal-body">
+      <div class="form-group" id="bet-circle-select-group">
+        <label class="form-label">Circle</label>
+        <select class="form-select" id="bet-circle-select" onchange="renderStakeInputs()"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">What's the bet?</label>
+        <input class="form-input" id="new-bet-desc" placeholder="e.g. Who finishes last in the draft…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bet type</label>
+        <select class="form-select" id="bet-type" onchange="renderStakeInputs()">
+          <option value="pool">🎱 Pool — winner takes all</option>
+          <option value="h2h">⚔️ Head-to-head — two sides</option>
+          <option value="fixed">📌 Fixed payout — custom payout</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Due date (optional)</label>
+        <input class="form-input" type="date" id="bet-due-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stakes per member</label>
+        <div id="stake-inputs"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border)">
+        <span style="font-size:13px;color:var(--text2)">Total pool</span>
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--gold)" id="pool-total">$0.00</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-bet')">Cancel</button>
+      <button class="btn btn-primary" id="create-bet-btn" onclick="createBet()">Add bet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settle Bet -->
+<div id="modal-settle" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="settle-title">Settle bet</div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">Pick the winner. The pool goes to them.</p>
+      <div id="settle-options"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-settle')">Cancel</button>
+      <button class="btn btn-gold" onclick="confirmSettle()">🏆 Settle</button>
+    </div>
+  </div>
+</div>
+
+<!-- Odds Calc -->
+<div id="modal-odds" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Odds calculator</div>
+    <div class="modal-body">
+      <div class="odds-mode-tabs">
+        <button class="odds-tab active" onclick="setOddsMode('pct',this)">%</button>
+        <button class="odds-tab" onclick="setOddsMode('decimal',this)">Decimal</button>
+        <button class="odds-tab" onclick="setOddsMode('american',this)">American</button>
+      </div>
+      <div id="odds-inputs"></div>
+      <div id="odds-results" style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-full" onclick="closeModal('modal-odds')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Info Modal -->
+<div id="modal-invite" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Invite people</div>
+    <div class="modal-body">
+      <div class="invite-code-box">
+        <div class="invite-code-label">Invite code — tap to copy</div>
+        <div class="invite-code-val" id="modal-invite-code" onclick="copyInviteCode()"></div>
+        <div class="invite-link-val" id="modal-invite-link" onclick="copyInviteLink()">Tap to copy invite link</div>
+      </div>
+      <p style="font-size:13px;color:var(--text2)">Share the code or link. Anyone who uses it can join this circle.</p>
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn btn-full" onclick="copyInviteCode()" style="flex:1">Copy code</button>
+        <button class="btn btn-full btn-primary" onclick="copyInviteLink()" style="flex:1">Copy link</button>
+      </div>
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px">
+        <button class="btn btn-sm btn-danger" onclick="refreshInviteCode()">🔄 Refresh code</button>
+        <div style="font-size:11px;color:var(--text3);margin-top:6px">Refreshing invalidates the current code.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-full" onclick="closeModal('modal-invite')">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="modal-profile" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit profile</div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Display name</label>
+        <input class="form-input" id="edit-displayname" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Avatar color</label>
+        <div class="color-grid" id="color-grid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-profile')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════════════════════════════════════
+const API = ''; // Empty = same origin (Vercel). For dev: 'http://localhost:3000'
+const AVATAR_COLORS = ['#7c6af7','#1D9E75','#D85A30','#378ADD','#D4537E','#BA7517','#3dd68c','#E24B4A','#a855f7','#0891b2'];
+
+const LEVELS = [
+  {lvl:1,name:'Rookie',xp:0},
+  {lvl:2,name:'Hustler',xp:100},
+  {lvl:3,name:'Sharpie',xp:250},
+  {lvl:4,name:'Bookie',xp:500},
+  {lvl:5,name:'High Roller',xp:1000},
+  {lvl:6,name:'The House',xp:2000},
+];
+
+const ACHIEVEMENTS = [
+  {id:'first_bet',name:'First Blood',desc:'Place your first bet',icon:'🎯',xp:25,unlock:s=>s.history.length>=1},
+  {id:'first_win',name:"Beginner's Luck",desc:'Win your first bet',icon:'🍀',xp:50,unlock:s=>s.history.some(h=>h.type==='win')},
+  {id:'streak3',name:'Hot Streak',desc:'Win 3 in a row',icon:'🔥',xp:100,unlock:s=>s.user&&s.user.streak>=3},
+  {id:'bets10',name:'Degenerate',desc:'Place 10 bets',icon:'😈',xp:150,unlock:s=>s.history.length>=10},
+  {id:'pool100',name:'High Stakes',desc:'Pool over $100 in a bet',icon:'💸',xp:75,unlock:s=>s.circles.some(c=>(c.bets||[]).some(b=>b.totalPool>=100))},
+  {id:'circle3',name:'Social Butterfly',desc:'Create 3 circles',icon:'🦋',xp:80,unlock:s=>s.circles.length>=3},
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════════════
+let state = {
+  user: null,
+  token: null,
+  circles: [],
+  history: [],
+  friends: [],
+  friendRequests: [],
+  unlockedAch: new Set(),
+  currentCircleId: null,
+  currentCircleTab: 'bets',
+  currentCircleBets: [],
+  settlingBetId: null,
+  settlingCircleId: null,
+  oddsMode: 'pct',
+  selectedEmoji: '🎯',
+  selectedColor: '#7c6af7',
+  inviteCircleId: null,
+  pendingInviteCode: null,
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════════════════════════════════
+const initials = n => (n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+const fmt = n => n>=0?`+$${Math.abs(n).toFixed(2)}`:`-$${Math.abs(n).toFixed(2)}`;
+const fmtAbs = n => `$${Math.abs(n).toFixed(2)}`;
+
+function av(name, color, size=36) {
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color||'#7c6af7'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*0.36)}px;font-weight:700;flex-shrink:0;">${initials(name)}</div>`;
+}
+
+function memberAv(member, size=36) {
+  return av(member.displayName, member.color, size);
+}
+
+function toast(msg, dur=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+function confetti() {
+  const colors = ['#7c6af7','#f5c842','#3dd68c','#f04060','#a855f7','#0891b2'];
+  for(let i=0;i<36;i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `left:${Math.random()*100}vw;top:0;background:${colors[Math.floor(Math.random()*colors.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;animation-delay:${Math.random()*0.5}s;animation-duration:${1.5+Math.random()*0.8}s`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 2400);
+  }
+}
+
+function setBtn(id, loading, label='') {
+  const btn = document.getElementById(id);
+  if(!btn) return;
+  btn.disabled = loading;
+  if(label) btn.textContent = loading ? '…' : label;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// API CALLS
+// ══════════════════════════════════════════════════════════════════════════════
+async function api(method, path, body=null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if(state.token) opts.headers['Authorization'] = `Bearer ${state.token}`;
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+
+const GET  = (p) => api('GET', p);
+const POST = (p,b) => api('POST', p, b);
+const PUT  = (p,b) => api('PUT', p, b);
+const PATCH= (p,b) => api('PATCH', p, b);
+const DEL  = (p) => api('DELETE', p);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SCREENS
+// ══════════════════════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOOT — check token, handle invite links
+// ══════════════════════════════════════════════════════════════════════════════
+async function boot() {
+  // Check for invite code in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const inviteParam = urlParams.get('invite') || urlParams.get('code');
+  const pathInvite = window.location.pathname.match(/\/join\/([A-Z0-9]{6})/i)?.[1];
+  const pendingCode = inviteParam || pathInvite || null;
+  if(pendingCode) state.pendingInviteCode = pendingCode.toUpperCase();
+
+  const token = localStorage.getItem('bc_token');
+  if(!token) {
+    if(state.pendingInviteCode) {
+      await showInviteLanding(state.pendingInviteCode);
+    } else {
+      showScreen('landing');
+    }
+    return;
+  }
+  state.token = token;
+  try {
+    const data = await GET('/api/auth?action=me');
+    state.user = data.user;
+    await loadAppData();
+    if(state.pendingInviteCode) {
+      await handleJoinWithCode(state.pendingInviteCode);
+    } else {
+      showScreen('app');
+    }
+  } catch {
+    localStorage.removeItem('bc_token');
+    state.token = null;
+    if(state.pendingInviteCode) await showInviteLanding(state.pendingInviteCode);
+    else showScreen('landing');
+  }
+}
+
+async function showInviteLanding(code) {
+  try {
+    // We need to resolve the invite code to get circle info — but without auth.
+    // Store it and show invite screen asking to sign in / register.
+    document.getElementById('invite-circle-emoji').textContent = '🎯';
+    document.getElementById('invite-circle-name').textContent = 'You\'re invited to a circle!';
+    document.getElementById('invite-circle-sub').textContent = `Use code ${code} — sign in or create an account to join.`;
+    document.getElementById('invite-action-btn').onclick = () => {
+      state.pendingInviteCode = code;
+      showScreen('register');
+    };
+    showScreen('invite');
+  } catch {
+    showScreen('landing');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════════════════════════
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  if(!email || !password) { errEl.textContent='Email and password required'; errEl.style.display='block'; return; }
+  setBtn('login-btn', true, 'Signing in…');
+  try {
+    const data = await POST('/api/auth?action=login', { email, password });
+    state.token = data.token;
+    state.user = data.user;
+    localStorage.setItem('bc_token', data.token);
+    await loadAppData();
+    if(state.pendingInviteCode) await handleJoinWithCode(state.pendingInviteCode);
+    else showScreen('app');
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  } finally {
+    setBtn('login-btn', false, 'Sign in');
+  }
+}
+
+async function doRegister() {
+  const displayName = document.getElementById('reg-name').value.trim();
+  const username = document.getElementById('reg-username').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const errEl = document.getElementById('reg-error');
+  errEl.style.display = 'none';
+  if(!displayName||!username||!email||!password) { errEl.textContent='All fields required'; errEl.style.display='block'; return; }
+  setBtn('reg-btn', true, 'Creating…');
+  try {
+    const data = await POST('/api/auth?action=register', { displayName, username, email, password });
+    state.token = data.token;
+    state.user = data.user;
+    localStorage.setItem('bc_token', data.token);
+    await loadAppData();
+    if(state.pendingInviteCode) await handleJoinWithCode(state.pendingInviteCode);
+    else showScreen('app');
+    toast('🎉 Welcome to BetCircle!');
+  } catch(e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  } finally {
+    setBtn('reg-btn', false, 'Create account');
+  }
+}
+
+function doLogout() {
+  state.token = null;
+  state.user = null;
+  state.circles = [];
+  state.history = [];
+  state.friends = [];
+  state.friendRequests = [];
+  localStorage.removeItem('bc_token');
+  window.location.href = '/';
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LOAD APP DATA
+// ══════════════════════════════════════════════════════════════════════════════
+async function loadAppData() {
+  try {
+    const [circleRes, meRes, friendsRes, reqsRes] = await Promise.all([
+      GET('/api/circles?action=list'),
+      GET('/api/users?action=me'),
+      GET('/api/users?action=friends'),
+      GET('/api/users?action=friendrequests'),
+    ]);
+    state.circles = circleRes.circles || [];
+    state.history = meRes.history || [];
+    state.user = meRes.user || state.user;
+    state.friends = friendsRes.friends || [];
+    state.friendRequests = reqsRes.requests || [];
+
+    // Fetch bets for each circle
+    await Promise.all(state.circles.map(async c => {
+      try {
+        const betRes = await GET(`/api/circles?action=bets&circleId=${c.id}`);
+        c.bets = betRes.bets || [];
+      } catch { c.bets = []; }
+    }));
+    renderAll();
+    checkFriendNotifs();
+  } catch(e) {
+    console.error('Failed to load app data', e);
+  }
+}
+
+function checkFriendNotifs() {
+  const dot = document.getElementById('notif-dot');
+  if(state.friendRequests.length > 0) {
+    dot.classList.add('show');
+  } else {
+    dot.classList.remove('show');
+  }
+  renderNotifPanel();
+}
+
+function renderNotifPanel() {
+  const el = document.getElementById('notif-list');
+  if(!el) return;
+  const items = [];
+  state.friendRequests.forEach(r => {
+    if(r.fromUser) items.push(`<div class="notif-item">
+      ${memberAv(r.fromUser, 36)}
+      <div class="notif-text">
+        <strong>${r.fromUser.displayName}</strong> sent you a friend request
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="btn btn-sm btn-primary" onclick="acceptFriend('${r.from}')">Accept</button>
+          <button class="btn btn-sm btn-danger" onclick="declineFriend('${r.from}')">Decline</button>
+        </div>
+      </div>
+    </div>`);
+  });
+  if(items.length===0) el.innerHTML='<div style="padding:16px;text-align:center;font-size:13px;color:var(--text3)">No notifications</div>';
+  else el.innerHTML = items.join('');
+}
+
+function toggleNotifPanel() {
+  const p = document.getElementById('notif-panel');
+  p.classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  const p = document.getElementById('notif-panel');
+  if(p && p.classList.contains('open') && !p.contains(e.target) && !e.target.closest('.nav-notif-btn')) {
+    p.classList.remove('open');
+  }
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════════════════
+function switchPage(page, el) {
+  document.querySelectorAll('.app-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el) el.classList.add('active');
+  else {
+    const idx = {home:0,circles:1,friends:2,lb:3,profile:4}[page];
+    document.querySelectorAll('.bnav-item')[idx]?.classList.add('active');
+  }
+  const fab = document.getElementById('fab');
+  fab.style.display = (page==='home'||page==='circles') ? 'flex' : 'none';
+  if(page==='circles') { showCircleList(); renderCirclesList(); }
+  if(page==='lb') renderLeaderboard();
+  if(page==='profile') renderProfile();
+  if(page==='friends') { loadFriends(); loadFriendRequests(); }
+}
+
+function fabAction() {
+  const page = document.querySelector('.app-page.active').id;
+  if(page==='page-circles' && state.currentCircleId) openNewBetModal(state.currentCircleId);
+  else if(page==='page-circles') showCreateCircle();
+  else openNewBetModal();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════════════════════════════════════════
+function renderAll() {
+  updateXPDisplay();
+  updateNavCoins();
+  renderHomeStats();
+  renderHomeCircles();
+  renderHomeRecent();
+}
+
+function updateXPDisplay() {
+  const u = state.user;
+  if(!u) return;
+  const cur = LEVELS[u.level-1] || LEVELS[0];
+  const next = LEVELS[u.level] || {xp: cur.xp+200};
+  const pct = Math.min(100, ((u.xp-cur.xp)/(next.xp-cur.xp))*100);
+  document.getElementById('xp-bar').style.width = pct+'%';
+  document.getElementById('xp-label').textContent = `${u.xp-cur.xp} / ${next.xp-cur.xp} XP`;
+  document.getElementById('nav-level').textContent = `Lv ${u.level}`;
+  document.getElementById('profile-xp-bar').style.width = pct+'%';
+  document.getElementById('profile-xp-label').textContent = `${u.xp-cur.xp} / ${next.xp-cur.xp} XP`;
+  document.getElementById('profile-level-disp').textContent = `⚡ Level ${u.level} — ${cur.name}`;
+}
+
+function updateNavCoins() {
+  if(!state.user) return;
+  document.getElementById('coin-count').textContent = state.user.coins || 0;
+  const pc = document.getElementById('p-coins');
+  if(pc) pc.textContent = `🪙 ${state.user.coins||0}`;
+}
+
+function renderHomeStats() {
+  const u = state.user;
+  if(!u) return;
+  const allBets = state.circles.flatMap(c=>c.bets||[]);
+  const openPool = allBets.filter(b=>b.status==='open').reduce((a,b)=>a+b.totalPool,0);
+  const wins = state.history.filter(h=>h.type==='win').length;
+  const total = state.history.length;
+  const wr = total>0 ? Math.round(wins/total*100)+'%' : '—';
+  document.getElementById('stat-won').textContent = '$'+(u.totalWon||0).toFixed(2);
+  document.getElementById('stat-pool').textContent = '$'+openPool.toFixed(2);
+  document.getElementById('stat-bets').textContent = total;
+  document.getElementById('stat-wr').textContent = wr;
+  const streak = u.streak||0;
+  document.getElementById('streak-num').textContent = streak;
+  const sf = document.getElementById('streak-flames');
+  const ss = document.getElementById('streak-sub');
+  if(streak===0){sf.textContent='😴';ss.textContent='Place your first bet';}
+  else if(streak<=2){sf.textContent='🔥';ss.textContent='Keep it up!';}
+  else if(streak<=5){sf.textContent='🔥🔥';ss.textContent="You're on fire!";}
+  else{sf.textContent='🔥🔥🔥';ss.textContent='UNSTOPPABLE!';}
+}
+
+function renderHomeCircles() {
+  const el = document.getElementById('home-circles');
+  if(!el) return;
+  if(state.circles.length===0){el.innerHTML='<div class="empty-state"><div class="empty-icon">⭕</div><div class="empty-title">No circles yet</div><div class="empty-sub">Create one or join via invite code</div></div>';return;}
+  el.innerHTML = state.circles.slice(0,3).map(c=>circleCardHTML(c)).join('');
+}
+
+function renderHomeRecent() {
+  const el = document.getElementById('home-recent');
+  if(!el) return;
+  if(state.history.length===0){el.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:16px">No bets yet — add one to a circle</div>';return;}
+  el.innerHTML = [...state.history].reverse().slice(0,3).map(h=>`
+    <div class="hist-card">
+      <div class="hist-icon ${h.type==='win'?'win':'loss'}">${h.type==='win'?'🏆':'💸'}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${h.desc}</div><div style="font-size:12px;color:var(--text3)">Won by ${h.winner}</div></div>
+      <div class="hist-delta ${h.type==='win'?'win':'loss'}">${h.delta>=0?'+':''}$${Math.abs(h.delta).toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CIRCLES
+// ══════════════════════════════════════════════════════════════════════════════
+function circleCardHTML(c) {
+  const bets = c.bets||[];
+  const open = bets.filter(b=>b.status==='open');
+  const pool = open.reduce((a,b)=>a+b.totalPool,0);
+  const avStack = (c.members||[]).slice(0,4).map(m=>`<div class="av-sm" style="background:${m.color||'#7c6af7'};color:#fff">${initials(m.displayName)}</div>`).join('');
+  return `<div class="circle-card" onclick="openCircleDetail('${c.id}')">
+    <div class="circle-card-header">
+      <div class="circle-emoji">${c.emoji||'🎯'}</div>
+      <div style="flex:1">
+        <div class="circle-name">${c.name}</div>
+        <div class="circle-meta">${c.members.length} member${c.members.length!==1?'s':''} · ${bets.length} bet${bets.length!==1?'s':''}</div>
+      </div>
+    </div>
+    <div class="circle-footer">
+      <div style="display:flex">${avStack}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        ${open.length>0?`<div class="open-badge">${open.length} open</div>`:''}
+        ${pool>0?`<div class="pool-total">$${pool.toFixed(2)}</div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCirclesList() {
+  const el = document.getElementById('circles-list');
+  if(!el) return;
+  if(state.circles.length===0){el.innerHTML='<div class="empty-state"><div class="empty-icon">⭕</div><div class="empty-title">No circles yet</div><div class="empty-sub">Create one or join via invite code</div></div>';return;}
+  el.innerHTML = state.circles.map(c=>circleCardHTML(c)).join('');
+}
+
+function showCircleList() {
+  document.getElementById('circle-list-view').style.display='block';
+  document.getElementById('circle-detail-view').style.display='none';
+  state.currentCircleId = null;
+  renderCirclesList();
+}
+
+async function openCircleDetail(cid) {
+  state.currentCircleId = cid;
+  state.currentCircleTab = 'bets';
+  document.getElementById('circle-list-view').style.display='none';
+  document.getElementById('circle-detail-view').style.display='block';
+  document.querySelectorAll('.app-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.bnav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-circles').classList.add('active');
+  document.querySelectorAll('.bnav-item')[1].classList.add('active');
+  document.getElementById('fab').style.display='flex';
+  document.getElementById('circle-detail-view').innerHTML = '<div class="spinner"></div>';
+  try {
+    const res = await GET(`/api/circles?action=get&circleId=${cid}`);
+    // Update circle in state
+    const idx = state.circles.findIndex(c=>c.id===cid);
+    if(idx>=0) { state.circles[idx] = {...state.circles[idx], ...res.circle, bets: res.bets}; }
+    state.currentCircleBets = res.bets;
+    renderCircleDetail(cid);
+  } catch(e) {
+    document.getElementById('circle-detail-view').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Failed to load</div><div class="empty-sub">${e.message}</div></div>`;
+  }
+}
+
+function renderCircleDetail(cid) {
+  const c = state.circles.find(x=>x.id===cid);
+  if(!c) return;
+  const bets = state.currentCircleBets || c.bets || [];
+  const open = bets.filter(b=>b.status==='open');
+  const settled = bets.filter(b=>b.status==='settled');
+  const tab = state.currentCircleTab;
+  const tabs = ['bets','history','balances','odds','invite'];
+  const tabLabels = [`Bets (${open.length})`, `History (${settled.length})`, 'Balances', 'Odds', '🔗'];
+  const tabBar = tabs.map(t=>`<button class="tab${tab===t?' active':''}" onclick="setCircleTab('${cid}','${t}')">${tabLabels[tabs.indexOf(t)]}</button>`).join('');
+
+  let content = '';
+  if(tab==='bets') {
+    content = open.length===0
+      ? '<div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-title">No open bets</div><div class="empty-sub">Hit + to add one</div></div>'
+      : open.map(b=>betCardHTML(b,cid,true,c)).join('');
+  } else if(tab==='history') {
+    content = settled.length===0
+      ? '<div class="empty-state"><div class="empty-icon">📜</div><div class="empty-title">No settled bets</div></div>'
+      : [...settled].reverse().map(b=>{
+          const chips = (b.payouts||[]).map(p=>`<span style="font-size:12px;font-weight:600;padding:3px 9px;border-radius:99px;background:${p.delta>=0?'rgba(61,214,140,0.12)':'rgba(240,64,96,0.12)'};color:${p.delta>=0?'var(--green2)':'var(--red2)'}">${(p.displayName||p.name||'?').split(' ')[0]} ${fmt(p.delta)}</span>`).join('');
+          return `<div class="bet-card" style="opacity:0.85">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+              <div class="bet-title">${b.desc}</div>
+              <div style="text-align:right;margin-left:12px;flex-shrink:0"><div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text2)">$${b.totalPool.toFixed(2)}</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">🏆 <span style="font-size:13px">Won by <strong>${b.winner?.displayName||b.winner}</strong></span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">${chips}</div>
+          </div>`;
+        }).join('');
+  } else if(tab==='balances') {
+    content = renderBalancesHTML(c, bets);
+  } else if(tab==='odds') {
+    content = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+      <button class="btn btn-primary btn-full" onclick="openOddsForCircle('${cid}')">📊 Open odds calculator</button>
+    </div>`;
+  } else if(tab==='invite') {
+    content = renderInviteTabHTML(c);
+  }
+
+  const avStacks = (c.members||[]).map(m=>memberAv(m,28)).join('');
+  const isOwner = c.ownerId === state.user?.id;
+
+  document.getElementById('circle-detail-view').innerHTML = `
+    <button class="back-btn" onclick="showCircleList()">← Back to circles</button>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+      <div style="font-size:36px;width:56px;height:56px;background:var(--bg3);border-radius:16px;display:flex;align-items:center;justify-content:center;">${c.emoji||'🎯'}</div>
+      <div style="flex:1">
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;margin-bottom:4px">${c.name}</div>
+        <div style="display:flex;gap:4px;align-items:center">${avStacks}<span style="font-size:12px;color:var(--text3);margin-left:4px">${c.members.length} members</span></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openNewBetModal('${cid}')">+ Bet</button>
+    </div>
+    <div class="tab-bar">${tabBar}</div>
+    ${content}
+  `;
+}
+
+function renderInviteTabHTML(c) {
+  const origin = window.location.origin;
+  const link = `${origin}/?invite=${c.inviteCode}`;
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px">
+    <div class="invite-code-box">
+      <div class="invite-code-label">Invite code — tap to copy</div>
+      <div class="invite-code-val" onclick="copyText('${c.inviteCode}','Code copied!')">${c.inviteCode}</div>
+      <div class="invite-link-val" onclick="copyText('${link}','Link copied!')">${link}</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn" style="flex:1;justify-content:center" onclick="copyText('${c.inviteCode}','Code copied!')">Copy code</button>
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="copyText('${link}','Link copied!')">Copy link</button>
+    </div>
+    ${c.ownerId===state.user?.id?`<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+      <button class="btn btn-sm btn-danger" onclick="refreshInviteCodeInline('${c.id}')">🔄 Refresh code</button>
+      <div style="font-size:11px;color:var(--text3);margin-top:6px">Refreshing invalidates the current code.</div>
+    </div>`:''}
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-top:10px">
+    <div style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;margin-bottom:12px">Members</div>
+    ${(c.members||[]).map(m=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">${memberAv(m,36)}<div><div style="font-size:14px;font-weight:500">${m.displayName}</div>${m.userId===c.ownerId?'<div style="font-size:11px;color:var(--accent2)">Owner</div>':''}</div></div>`).join('')}
+  </div>`;
+}
+
+function setCircleTab(cid, tab) {
+  state.currentCircleTab = tab;
+  renderCircleDetail(cid);
+}
+
+function renderBalancesHTML(c, bets) {
+  const settled = (bets||[]).filter(b=>b.status==='settled');
+  const balances = {};
+  settled.forEach(b => {
+    (b.payouts||[]).forEach(p => {
+      const key = p.userId || p.name;
+      if(!balances[key]) balances[key] = { displayName: p.displayName||p.name, color: p.color||'#7c6af7', amt: 0 };
+      balances[key].amt += p.delta;
+    });
+  });
+  const members = c.members||[];
+  members.forEach(m => {
+    if(!balances[m.userId]) balances[m.userId] = { displayName: m.displayName, color: m.color, amt: 0 };
+  });
+
+  const cards = Object.entries(balances).map(([uid, b])=>{
+    const cls = b.amt>0?'pos':b.amt<0?'neg':'zero';
+    const label = b.amt>0?'is owed':b.amt<0?'owes':'is even';
+    return `<div class="bal-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${av(b.displayName,b.color,44)}<div><div style="font-size:15px;font-weight:600">${b.displayName}</div><div style="font-size:12px;color:var(--text3)">${label}</div></div></div>
+      <div class="bal-amount ${cls}">${b.amt===0?'$0.00':fmt(b.amt)}</div>
+    </div>`;
+  }).join('');
+
+  // Simple settlement optimizer
+  const pos = Object.entries(balances).filter(([,v])=>v.amt>0.01).sort(([,a],[,b])=>b.amt-a.amt).map(([id,v])=>({id,...v}));
+  const neg = Object.entries(balances).filter(([,v])=>v.amt<-0.01).sort(([,a],[,b])=>a.amt-b.amt).map(([id,v])=>({id,...v,amt:Math.abs(v.amt)}));
+  const settlements = [];
+  let i=0,j=0;
+  const p2=pos.map(x=>({...x})),n2=neg.map(x=>({...x}));
+  while(i<p2.length&&j<n2.length){
+    const amt=Math.min(p2[i].amt,n2[j].amt);
+    if(amt>0.01) settlements.push({from:n2[j].displayName,to:p2[i].displayName,fromColor:n2[j].color,toColor:p2[i].color,amount:amt});
+    p2[i].amt-=amt; n2[j].amt-=amt;
+    if(p2[i].amt<0.01)i++; if(n2[j].amt<0.01)j++;
+  }
+
+  const settleRows = settlements.length===0
+    ? '<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px">Everyone\'s even 🎉</div>'
+    : settlements.map(s=>`<div class="settle-row">${av(s.from,s.fromColor,30)}<span style="font-size:13px">${s.from}</span><span style="color:var(--text3);font-size:14px">→</span>${av(s.to,s.toColor,30)}<span style="font-size:13px">${s.to}</span><span style="margin-left:auto;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700">${fmtAbs(s.amount)}</span></div>`).join('');
+
+  return `${cards}
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-top:8px">
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;margin-bottom:12px">Who pays whom</div>
+      ${settleRows}
+    </div>`;
+}
+
+function betCardHTML(bet, circleId, showActions, circle) {
+  const typeClass = {pool:'type-pool',h2h:'type-h2h',fixed:'type-fixed'}[bet.type]||'type-pool';
+  const typeLabel = {pool:'Pool',h2h:'H2H',fixed:'Fixed'}[bet.type]||'Pool';
+  const chips = (bet.participants||[]).map(p=>{
+    const oddsDisp = p.odds ? `<span class="participant-chip-odds">×${p.odds}</span>` : '';
+    return `<div class="participant-chip">
+      <div class="av-xs" style="background:${p.color||'#7c6af7'};color:#fff">${initials(p.displayName||p.name||'?')}</div>
+      <span class="participant-chip-name">${(p.displayName||p.name||'?').split(' ')[0]}</span>
+      <span class="participant-chip-stake">$${(p.stake||0).toFixed(2)}</span>${oddsDisp}
+    </div>`;
+  }).join('');
+  const due = bet.dueDate ? `<div class="bet-due">📅 Due ${bet.dueDate}</div>` : '';
+  const actions = showActions && circleId ? `
+    <div class="bet-actions">
+      <button class="btn btn-sm btn-gold" onclick="openSettle('${circleId}','${bet.id}')">🏆 Settle</button>
+      <button class="btn btn-sm" onclick="openOddsForBet('${circleId}','${bet.id}')">📊 Odds</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteBet('${circleId}','${bet.id}')">Delete</button>
+    </div>` : '';
+  return `<div class="bet-card">
+    <div class="bet-card-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="type-chip ${typeClass}">${typeLabel}</span></div>
+        <div class="bet-title">${bet.desc}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="bet-pool-amt">$${(bet.totalPool||0).toFixed(2)}</div>
+        <div class="bet-pool-lbl">Pool</div>
+      </div>
+    </div>
+    ${due}
+    <div class="bet-participants">${chips}</div>
+    ${actions}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CREATE CIRCLE
+// ══════════════════════════════════════════════════════════════════════════════
+function showCreateCircle() {
+  state.selectedEmoji = '🎯';
+  document.getElementById('new-circle-name').value = '';
+  document.querySelectorAll('#emoji-picker span').forEach(s=>s.classList.remove('selected'));
+  document.querySelector('#emoji-picker span')?.classList.add('selected');
+  openModal('modal-circle');
+}
+
+function selectEmoji(el, emoji) {
+  state.selectedEmoji = emoji;
+  document.querySelectorAll('#emoji-picker span').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function createCircle() {
+  const name = document.getElementById('new-circle-name').value.trim();
+  if(!name) { toast('⚠️ Circle needs a name'); return; }
+  try {
+    const res = await POST('/api/circles?action=create', { name, emoji: state.selectedEmoji });
+    res.circle.bets = [];
+    state.circles.push(res.circle);
+    closeModal('modal-circle');
+    renderAll();
+    renderCirclesList();
+    toast(`✅ "${name}" created!`);
+    openCircleDetail(res.circle.id);
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// JOIN CIRCLE
+// ══════════════════════════════════════════════════════════════════════════════
+function openJoinCircle() {
+  document.getElementById('join-code-input').value = '';
+  document.getElementById('join-preview').style.display = 'none';
+  openModal('modal-join');
+}
+
+function handleInviteAction() {
+  state.pendingInviteCode = state.pendingInviteCode;
+  showScreen('register');
+}
+
+async function handleJoinWithCode(code) {
+  if(!state.token) { showScreen('landing'); return; }
+  try {
+    const res = await POST('/api/circles?action=join', { code });
+    res.circle.bets = [];
+    if(!state.circles.find(c=>c.id===res.circle.id)) state.circles.push(res.circle);
+    state.pendingInviteCode = null;
+    showScreen('app');
+    renderAll();
+    toast(`🎉 Joined "${res.circle.name}"!`);
+    openCircleDetail(res.circle.id);
+  } catch(e) {
+    // Might already be a member
+    showScreen('app');
+    if(e.message.includes('Already a member')) toast('You\'re already in that circle');
+    else toast(`⚠️ ${e.message}`);
+  }
+}
+
+async function joinCircle() {
+  let code = document.getElementById('join-code-input').value.trim().toUpperCase();
+  // Handle if full URL pasted
+  const match = code.match(/[?&](?:invite|code)=([A-Z0-9]{6})/i) || code.match(/\/join\/([A-Z0-9]{6})/i);
+  if(match) code = match[1].toUpperCase();
+  if(!code || code.length < 6) { toast('⚠️ Enter a valid invite code'); return; }
+  try {
+    const res = await POST('/api/circles?action=join', { code });
+    res.circle.bets = [];
+    if(!state.circles.find(c=>c.id===res.circle.id)) state.circles.push(res.circle);
+    closeModal('modal-join');
+    renderAll();
+    renderCirclesList();
+    toast(`🎉 Joined "${res.circle.name}"!`);
+    openCircleDetail(res.circle.id);
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+async function refreshInviteCodeInline(circleId) {
+  try {
+    const res = await POST(`/api/circles?action=refreshcode&circleId=${circleId}`);
+    const c = state.circles.find(x=>x.id===circleId);
+    if(c) c.inviteCode = res.inviteCode;
+    renderCircleDetail(circleId);
+    toast('🔄 Invite code refreshed');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+function copyText(text, msg='Copied!') {
+  navigator.clipboard.writeText(text).then(()=>toast(`✅ ${msg}`)).catch(()=>{
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+    toast(`✅ ${msg}`);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CREATE BET
+// ══════════════════════════════════════════════════════════════════════════════
+let stakeTimer;
+
+async function openNewBetModal(prefillCircleId=null) {
+  if(state.circles.length===0) { toast('⚠️ Create a circle first'); showCreateCircle(); return; }
+  const sel = document.getElementById('bet-circle-select');
+  sel.innerHTML = state.circles.map(c=>`<option value="${c.id}">${c.emoji||'🎯'} ${c.name}</option>`).join('');
+  if(prefillCircleId) sel.value = prefillCircleId;
+  document.getElementById('new-bet-desc').value = '';
+  document.getElementById('bet-type').value = 'pool';
+  document.getElementById('bet-due-date').value = '';
+  document.getElementById('bet-circle-select-group').style.display = state.circles.length===1 ? 'none' : 'block';
+  renderStakeInputs();
+  openModal('modal-bet');
+}
+
+function renderStakeInputs() {
+  const cid = document.getElementById('bet-circle-select').value;
+  const c = state.circles.find(x=>x.id===cid);
+  if(!c) return;
+  const type = document.getElementById('bet-type').value;
+  const members = type==='h2h' ? (c.members||[]).slice(0,2) : (c.members||[]);
+  document.getElementById('stake-inputs').innerHTML = members.map(m=>`
+    <div class="member-stake-row">
+      ${memberAv(m,36)}
+      <span class="member-stake-name">${m.displayName}</span>
+      <div class="stake-input-wrap">
+        <span class="stake-dollar">$</span>
+        <input class="stake-input" type="number" min="0" step="0.01" placeholder="0.00"
+          data-member-id="${m.userId}" data-member-name="${m.displayName}" data-member-color="${m.color||'#7c6af7'}"
+          oninput="updatePoolTotal()">
+      </div>
+      ${type==='h2h'?`<div class="stake-input-wrap" style="width:80px">
+        <span class="stake-dollar">×</span>
+        <input class="stake-input" type="number" min="1" step="0.1" placeholder="odds" data-odds-id="${m.userId}" style="width:60px">
+      </div>`:''}
+    </div>
+  `).join('');
+  updatePoolTotal();
+}
+
+function updatePoolTotal() {
+  clearTimeout(stakeTimer);
+  stakeTimer = setTimeout(()=>{
+    const inputs = document.querySelectorAll('.stake-input[data-member-id]');
+    const total = Array.from(inputs).reduce((a,i)=>a+(parseFloat(i.value)||0), 0);
+    document.getElementById('pool-total').textContent = '$'+total.toFixed(2);
+  }, 50);
+}
+
+async function createBet() {
+  const desc = document.getElementById('new-bet-desc').value.trim();
+  if(!desc) { toast('⚠️ Describe the bet'); return; }
+  const cid = document.getElementById('bet-circle-select').value;
+  const type = document.getElementById('bet-type').value;
+  const dueDate = document.getElementById('bet-due-date').value;
+  const inputs = document.querySelectorAll('.stake-input[data-member-id]');
+  const participants = Array.from(inputs).map(i=>{
+    const userId = i.getAttribute('data-member-id');
+    const displayName = i.getAttribute('data-member-name');
+    const color = i.getAttribute('data-member-color');
+    const stake = parseFloat(i.value)||0;
+    const oddsEl = document.querySelector(`.stake-input[data-odds-id="${userId}"]`);
+    const odds = oddsEl ? (parseFloat(oddsEl.value)||null) : null;
+    return { userId, displayName, color, stake, odds };
+  }).filter(p=>p.stake>0);
+  if(participants.length<1) { toast('⚠️ Add at least one stake'); return; }
+  const btn = document.getElementById('create-bet-btn');
+  btn.disabled=true; btn.textContent='Adding…';
+  try {
+    const res = await POST(`/api/circles?action=addbet&circleId=${cid}`, { desc, type, participants, dueDate });
+    const c = state.circles.find(x=>x.id===cid);
+    if(c) { c.bets = c.bets||[]; c.bets.push(res.bet); }
+    state.currentCircleBets = c?.bets||[];
+    closeModal('modal-bet');
+    renderAll();
+    if(state.currentCircleId===cid) renderCircleDetail(cid);
+    toast('🎯 Bet added!');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+  finally { btn.disabled=false; btn.textContent='Add bet'; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// SETTLE
+// ══════════════════════════════════════════════════════════════════════════════
+function openSettle(circleId, betId) {
+  state.settlingBetId = betId;
+  state.settlingCircleId = circleId;
+  const c = state.circles.find(x=>x.id===circleId);
+  const bets = state.currentCircleBets||c?.bets||[];
+  const bet = bets.find(b=>b.id===betId);
+  if(!bet) return;
+  document.getElementById('settle-title').textContent = `Settle: ${bet.desc}`;
+  document.getElementById('settle-options').innerHTML = (bet.participants||[]).map(p=>`
+    <div class="winner-option" onclick="selectWinner(this)" data-user-id="${p.userId}" data-name="${p.displayName||p.name}">
+      ${av(p.displayName||p.name, p.color||'#7c6af7', 38)}
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${p.displayName||p.name}</div><div style="font-size:12px;color:var(--text3)">Staked $${(p.stake||0).toFixed(2)}</div></div>
+      <div><div class="winner-profit">+$${(bet.totalPool-(p.stake||0)).toFixed(2)}</div><div style="font-size:11px;color:var(--text3);text-align:right">profit</div></div>
+    </div>
+  `).join('');
+  openModal('modal-settle');
+}
+
+function selectWinner(el) {
+  document.querySelectorAll('.winner-option').forEach(w=>w.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function confirmSettle() {
+  const selected = document.querySelector('.winner-option.selected');
+  if(!selected) { toast('⚠️ Pick a winner'); return; }
+  const winnerId = selected.getAttribute('data-user-id');
+  const winnerName = selected.getAttribute('data-name');
+  const cid = state.settlingCircleId;
+  const betId = state.settlingBetId;
+  try {
+    const res = await POST(`/api/circles?action=settle&circleId=${cid}&betId=${betId}`, { winner: { userId: winnerId, displayName: winnerName } });
+    // Update local state
+    const c = state.circles.find(x=>x.id===cid);
+    if(c) {
+      const bets = state.currentCircleBets||c.bets||[];
+      const bet = bets.find(b=>b.id===betId);
+      if(bet) { Object.assign(bet, res.bet); }
+      state.currentCircleBets = bets;
+    }
+    // Refresh user data (XP, coins etc may have changed)
+    const meRes = await GET('/api/users?action=me');
+    state.user = meRes.user;
+    state.history = meRes.history||[];
+
+    closeModal('modal-settle');
+    renderAll();
+    if(state.currentCircleId===cid) renderCircleDetail(cid);
+    if(winnerId===state.user?.id) { confetti(); toast(`🏆 You won! Congrats!`); }
+    else toast(`🏆 ${winnerName} wins!`);
+    checkAchievements();
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DELETE BET
+// ══════════════════════════════════════════════════════════════════════════════
+async function deleteBet(circleId, betId) {
+  if(!confirm('Delete this bet?')) return;
+  try {
+    await DEL(`/api/circles?action=deletebet&circleId=${circleId}&betId=${betId}`);
+    const c = state.circles.find(x=>x.id===circleId);
+    if(c) {
+      c.bets = (c.bets||[]).filter(b=>b.id!==betId);
+      state.currentCircleBets = c.bets;
+    }
+    renderAll();
+    if(state.currentCircleId===circleId) renderCircleDetail(circleId);
+    toast('🗑️ Bet deleted');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ODDS CALCULATOR
+// ══════════════════════════════════════════════════════════════════════════════
+function openOddsForBet(circleId, betId) {
+  const c = state.circles.find(x=>x.id===circleId);
+  const bets = state.currentCircleBets||c?.bets||[];
+  const bet = bets.find(b=>b.id===betId);
+  if(!bet) return;
+  renderOddsInputs((bet.participants||[]).map(p=>({name:p.displayName||p.name, color:p.color||'#7c6af7'})));
+  openModal('modal-odds');
+}
+
+function openOddsForCircle(circleId) {
+  const c = state.circles.find(x=>x.id===circleId);
+  if(!c) return;
+  renderOddsInputs((c.members||[]).map(m=>({name:m.displayName, color:m.color||'#7c6af7'})));
+  openModal('modal-odds');
+}
+
+function renderOddsInputs(people) {
+  document.getElementById('odds-inputs').innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">` +
+    people.map(p=>`<div style="display:flex;align-items:center;gap:8px">
+      ${av(p.name,p.color,28)}
+      <div class="stake-input-wrap" style="flex:1"><span class="stake-dollar">$</span><input class="stake-input" style="width:100%" type="number" min="0" step="any" placeholder="stake" data-odds-name="${p.name}" oninput="calcOdds()"></div>
+    </div>`).join('') + `</div>`;
+  calcOdds();
+}
+
+function setOddsMode(mode, el) {
+  state.oddsMode = mode;
+  document.querySelectorAll('.odds-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  calcOdds();
+}
+
+function calcOdds() {
+  const inputs = document.querySelectorAll('[data-odds-name]');
+  const stakes = Array.from(inputs).map(i=>({name:i.getAttribute('data-odds-name'),stake:parseFloat(i.value)||0})).filter(x=>x.stake>0);
+  const total = stakes.reduce((a,x)=>a+x.stake,0);
+  const res = document.getElementById('odds-results');
+  if(!total||!stakes.length){res.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center">Enter stakes to see odds</div>';return;}
+  res.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:14px"><span style="font-size:13px;color:var(--text2)">Total pool</span><span style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--gold)">$${total.toFixed(2)}</span></div>` +
+    stakes.map(x=>{
+      const pct=x.stake/total;
+      const payout=(total/x.stake).toFixed(2);
+      let val='';
+      if(state.oddsMode==='pct') val=`${(pct*100).toFixed(1)}%`;
+      else if(state.oddsMode==='decimal') val=`${payout}x`;
+      else val=pct>=0.5?`-${Math.round(pct/(1-pct)*100)}`:`+${Math.round((1-pct)/pct*100)}`;
+      return `<div class="odds-result-row">
+        <span style="flex:1;font-size:14px">${x.name}</span>
+        <div class="odds-bar"><div class="odds-bar-fill" style="width:${(pct*100).toFixed(1)}%"></div></div>
+        <div class="odds-value">${val}</div>
+      </div>`;
+    }).join('');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// FRIENDS
+// ══════════════════════════════════════════════════════════════════════════════
+let friendSearchTimer;
+
+function searchFriends() {
+  clearTimeout(friendSearchTimer);
+  friendSearchTimer = setTimeout(async () => {
+    const q = document.getElementById('friend-search').value.trim();
+    const el = document.getElementById('friend-search-results');
+    if(!q || q.length<2) { el.innerHTML=''; return; }
+    try {
+      const res = await GET(`/api/users?action=search&q=${encodeURIComponent(q)}`);
+      if(!res.users.length) { el.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px">No users found</div>'; return; }
+      el.innerHTML = res.users.map(u=>`
+        <div class="friend-row">
+          ${av(u.displayName,u.color,40)}
+          <div class="friend-info">
+            <div class="friend-name">${u.displayName}</div>
+            <div class="friend-username">@${u.username}</div>
+          </div>
+          ${u.isFriend ? '<span style="font-size:12px;color:var(--green2);font-weight:600">Friends ✓</span>'
+          : u.requestSent ? '<span style="font-size:12px;color:var(--text3)">Request sent</span>'
+          : `<button class="btn btn-sm btn-primary" onclick="sendFriendRequest('${u.id}',this)">Add</button>`}
+        </div>
+      `).join('');
+    } catch(e) { el.innerHTML=`<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px">${e.message}</div>`; }
+  }, 350);
+}
+
+async function sendFriendRequest(targetId, btn) {
+  btn.disabled=true; btn.textContent='Sending…';
+  try {
+    await POST(`/api/users?action=friendrequest&targetId=${targetId}`);
+    btn.textContent='Sent ✓'; btn.classList.remove('btn-primary');
+    toast('👋 Friend request sent!');
+  } catch(e) { toast(`⚠️ ${e.message}`); btn.disabled=false; btn.textContent='Add'; }
+}
+
+async function loadFriends() {
+  try {
+    const res = await GET('/api/users?action=friends');
+    state.friends = res.friends||[];
+    renderFriendsList();
+  } catch {}
+}
+
+async function loadFriendRequests() {
+  try {
+    const res = await GET('/api/users?action=friendrequests');
+    state.friendRequests = res.requests||[];
+    renderFriendRequestsList();
+    checkFriendNotifs();
+  } catch {}
+}
+
+function renderFriendsList() {
+  const el = document.getElementById('friends-list');
+  if(!el) return;
+  if(!state.friends.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No friends yet</div><div class="empty-sub">Search for people to add them</div></div>'; return; }
+  el.innerHTML = state.friends.map(u=>`
+    <div class="friend-row">
+      ${av(u.displayName,u.color,40)}
+      <div class="friend-info">
+        <div class="friend-name">${u.displayName}</div>
+        <div class="friend-username">@${u.username} · Lv ${u.level||1}</div>
+      </div>
+      <button class="btn btn-sm btn-danger" onclick="unfriend('${u.id}',this)">Remove</button>
+    </div>
+  `).join('');
+}
+
+function renderFriendRequestsList() {
+  const el = document.getElementById('friend-requests-list');
+  if(!el) return;
+  if(!state.friendRequests.length) { el.innerHTML='<div style="font-size:13px;color:var(--text3);text-align:center;padding:12px">No pending requests</div>'; return; }
+  el.innerHTML = state.friendRequests.map(r=>{
+    const u = r.fromUser;
+    if(!u) return '';
+    return `<div class="friend-req-row">
+      ${av(u.displayName,u.color,40)}
+      <div class="friend-info">
+        <div class="friend-name">${u.displayName}</div>
+        <div class="friend-username">@${u.username}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm btn-primary" onclick="acceptFriend('${u.id}')">Accept</button>
+        <button class="btn btn-sm btn-danger" onclick="declineFriend('${u.id}')">Decline</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function acceptFriend(fromId) {
+  try {
+    await POST(`/api/users?action=acceptfriend&targetId=${fromId}`);
+    state.friendRequests = state.friendRequests.filter(r=>r.from!==fromId);
+    await loadFriends();
+    renderFriendRequestsList();
+    checkFriendNotifs();
+    toast('✅ Friend added!');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+async function declineFriend(fromId) {
+  try {
+    await POST(`/api/users?action=declinefriend&targetId=${fromId}`);
+    state.friendRequests = state.friendRequests.filter(r=>r.from!==fromId);
+    renderFriendRequestsList();
+    checkFriendNotifs();
+    toast('Declined');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+async function unfriend(targetId, btn) {
+  if(!confirm('Remove this friend?')) return;
+  btn.disabled=true;
+  try {
+    await DEL(`/api/users?action=unfriend&targetId=${targetId}`);
+    state.friends = state.friends.filter(f=>f.id!==targetId);
+    renderFriendsList();
+    toast('Removed');
+  } catch(e) { toast(`⚠️ ${e.message}`); btn.disabled=false; }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LEADERBOARD
+// ══════════════════════════════════════════════════════════════════════════════
+function renderLeaderboard() {
+  const allMembers = {};
+  state.circles.forEach(c=>{
+    (c.bets||[]).filter(b=>b.status==='settled').forEach(b=>{
+      (b.payouts||[]).forEach(p=>{
+        const key = p.userId||p.name;
+        if(!allMembers[key]) allMembers[key]={name:p.displayName||p.name,color:p.color||'#7c6af7',net:0,wins:0,losses:0,bets:0};
+        allMembers[key].net+=p.delta;
+        allMembers[key].bets++;
+        if(p.delta>0)allMembers[key].wins++;
+        else allMembers[key].losses++;
+      });
+    });
+  });
+  const sorted = Object.values(allMembers).sort((a,b)=>b.net-a.net);
+  const el = document.getElementById('lb-list');
+  if(!sorted.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🏆</div><div class="empty-title">No settled bets yet</div><div class="empty-sub">Settle some bets to see rankings</div></div>';return;}
+  const rankClass=['gold','silver','bronze'];
+  el.innerHTML = sorted.map((m,i)=>`
+    <div class="lb-row">
+      <div class="lb-rank ${rankClass[i]||''}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</div>
+      ${av(m.name,m.color,40)}
+      <div class="lb-info"><div class="lb-name">${m.name}</div><div class="lb-stats">${m.wins}W / ${m.losses}L · ${m.bets} bet${m.bets!==1?'s':''}</div></div>
+      <div class="lb-net" style="color:${m.net>=0?'var(--green2)':'var(--red2)'}">${m.net>=0?'+':''}$${Math.abs(m.net).toFixed(2)}</div>
+    </div>
+  `).join('');
+
+  const achEl = document.getElementById('achievements-list');
+  achEl.innerHTML = ACHIEVEMENTS.map(a=>`
+    <div class="achievement ${state.unlockedAch.has(a.id)?'unlocked':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div><div class="ach-name">${a.name}</div><div class="ach-desc">${a.desc}</div><div class="ach-xp">+${a.xp} XP</div></div>
+      <div style="font-size:18px;margin-left:auto">${state.unlockedAch.has(a.id)?'✅':'🔒'}</div>
+    </div>
+  `).join('');
+}
+
+function checkAchievements() {
+  const s = { user: state.user, history: state.history, circles: state.circles };
+  ACHIEVEMENTS.forEach(a => {
+    if(!state.unlockedAch.has(a.id) && a.unlock(s)) {
+      state.unlockedAch.add(a.id);
+      toast(`🎖️ Achievement: ${a.name}! +${a.xp} XP`);
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// PROFILE
+// ══════════════════════════════════════════════════════════════════════════════
+function renderProfile() {
+  const u = state.user;
+  if(!u) return;
+  document.getElementById('profile-av').style.background = u.color||'#7c6af7';
+  document.getElementById('profile-av').textContent = initials(u.displayName);
+  document.getElementById('profile-name-disp').textContent = u.displayName;
+  document.getElementById('profile-username-disp').textContent = `@${u.username}`;
+  document.getElementById('p-won').textContent = '$'+(u.totalWon||0).toFixed(2);
+  document.getElementById('p-lost').textContent = '$'+(u.totalLost||0).toFixed(2);
+  document.getElementById('p-bets').textContent = state.history.length;
+  updateNavCoins();
+  const hl = document.getElementById('history-list');
+  if(!hl) return;
+  if(!state.history.length){hl.innerHTML='<div class="empty-state"><div class="empty-icon">📜</div><div class="empty-title">No history yet</div><div class="empty-sub">Settle some bets</div></div>';return;}
+  hl.innerHTML = [...state.history].reverse().map(h=>`
+    <div class="hist-card">
+      <div class="hist-icon ${h.type==='win'?'win':'loss'}">${h.type==='win'?'🏆':'💸'}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${h.desc}</div><div style="font-size:12px;color:var(--text3)">Won by ${h.winner}</div></div>
+      <div class="hist-delta ${h.type==='win'?'win':'loss'}">${h.delta>=0?'+':''}$${Math.abs(h.delta).toFixed(2)}</div>
+    </div>
+  `).join('');
+}
+
+function openEditProfile() {
+  const u = state.user;
+  document.getElementById('edit-displayname').value = u?.displayName||'';
+  state.selectedColor = u?.color||'#7c6af7';
+  const grid = document.getElementById('color-grid');
+  grid.innerHTML = AVATAR_COLORS.map(c=>`<div class="color-swatch${c===state.selectedColor?' selected':''}" style="background:${c}" onclick="pickColor(this,'${c}')"></div>`).join('');
+  openModal('modal-profile');
+}
+
+function pickColor(el, color) {
+  state.selectedColor = color;
+  document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+async function saveProfile() {
+  const displayName = document.getElementById('edit-displayname').value.trim();
+  try {
+    const res = await PATCH('/api/auth?action=profile', { displayName, color: state.selectedColor });
+    state.user = res.user;
+    renderProfile();
+    updateXPDisplay();
+    closeModal('modal-profile');
+    toast('✅ Profile updated');
+  } catch(e) { toast(`⚠️ ${e.message}`); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════════════════════════════════════
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+document.querySelectorAll('.modal-backdrop').forEach(m => {
+  m.addEventListener('click', e => { if(e.target===m) closeModal(m.id); });
+});
+
+// Enter key on auth forms
+document.getElementById('login-password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('reg-password').addEventListener('keydown', e => { if(e.key==='Enter') doRegister(); });
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════════════════════
+boot();
+</script>
+</body>
+</html>
