@@ -1,7 +1,12 @@
-// lib/db.js — KV wrappers + shared utilities
+// lib/db.js — Upstash Redis wrappers + shared utilities
 
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import jwt from 'jsonwebtoken';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'betcircle-dev-secret-change-in-prod';
 
@@ -38,16 +43,12 @@ export function authMiddleware(req) {
 export const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36);
 export const inviteCode = () => Math.random().toString(36).slice(2, 8).toUpperCase();
 
-// ── KV key schema ────────────────────────────────────────────────────────────
-// user:{id}            → { id, email, username, displayName, color, xp, level, coins, streak, totalWon, totalLost, createdAt }
-// email:{email}        → userId
-// username:{username}  → userId
-// user:{id}:circles    → [circleId, ...]
-// user:{id}:friends    → [userId, ...]
-// user:{id}:friendReqs → [{ from, to, createdAt }]
-// user:{id}:history    → [{ id, desc, winner, type, delta, pool, when, circleId, betId }]
-// circle:{id}          → { id, name, emoji, ownerId, members:[{userId,displayName,color}], inviteCode, createdAt }
-// circle:{id}:bets     → [bet, ...]
+// ── KV wrappers (Upstash Redis) ──────────────────────────────────────────────
+const kv = {
+  get: (key) => redis.get(key),
+  set: (key, value) => redis.set(key, value),
+  del: (key) => redis.del(key),
+};
 
 // ── User ops ─────────────────────────────────────────────────────────────────
 export async function getUser(id) {
